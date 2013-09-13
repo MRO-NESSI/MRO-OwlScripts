@@ -1,0 +1,231 @@
+import javax.swing.border.TitledBorder;
+import arc.api.device.ArcDeviceJAPI;
+import arc.api.device.ArcReplyException;
+import owl.CCParams.CCScriptFrame;
+import owl.main.owltypes.OwlBoldButton;
+import owl.main.owltypes.OwlNumberField;
+import owl.gui.utils.OwlUtilities;
+import owl.main.setup.SetupEvent;
+import owl.main.setup.SetupListener;
+import owl.main.setup.SetupFrame;
+import owl.main.MainApp;
+
+import arc.api.fits.ArcFitsFileJAPI;
+import arc.api.device.ArcDeviceJAPI;
+import arc.api.device.ArcReplyException;
+import arc.api.deinterlace.ArcDeinterlaceJAPI;
+
+
+// +---------------------------------------------------------------------------------------+
+// |  CLASS TemplateFrame                                                                  |
+// +---------------------------------------------------------------------------------------+
+// |  Creates the primary window.                                                          |
+// +---------------------------------------------------------------------------------------+
+public class TemplateFrame extends CCScriptFrame implements Runnable, SetupListener
+{
+	final String RUN_ACTION		=	"RUN";
+	final String STOP_ACTION	=	"ABORT";
+
+	JToolBar			m_toolbar;
+	OwlBoldButton		m_runButton;
+
+	// +-----------------------------------------------------------------+
+	// |  Constructor                                                    |
+	// +-----------------------------------------------------------------+
+	public TemplateFrame()
+	{
+		super( "Template" );
+
+		m_toolbar = new JToolBar();
+		m_toolbar.setFloatable( false );
+
+		m_runButton = super.createBoldToolbarButton( RUN_ACTION, Color.red );
+		m_toolbar.add( m_runButton );
+
+		super.appendToolbar( m_toolbar );
+
+		getContentPane().add( m_toolbar, BorderLayout.PAGE_START );
+		getContentPane().add( createComponents(), BorderLayout.CENTER );
+
+		SetupFrame.addSetupListener( this );
+
+		pack();
+		OwlUtilities.centerFrame( this );
+
+		loadPreferences();
+	}
+	/*
+	  public void continousReadout(int nframes, int nramps, int exposureTime){
+	  ArcDeviceJAPI.Cmd( ArcDeviceJAPI.TIM_ID, ArcDeviceJAPI.
+	  }
+	*/
+	// +-----------------------------------------------------------------+
+	// |  destroy                                                        |
+	// +-----------------------------------------------------------------+
+	// |  Disposes of the window                                         |
+	// +-----------------------------------------------------------------+
+	public void destroy()
+	{
+		dispose();
+	}
+
+	// +-----------------------------------------------------------------+
+	// |  actionPerformed                                                |
+	// +-----------------------------------------------------------------+
+	// |  Override for ActionListener class                              |
+	// +-----------------------------------------------------------------+
+	public void actionPerformed( ActionEvent event )
+	{
+		if ( event.getActionCommand().equals( RUN_ACTION ) )
+			{
+				new Thread( this ).start();
+			}
+
+		else
+			{
+				super.actionPerformed( event );
+			}
+	}
+
+	// +-----------------------------------------------------------------+
+	// |  setupChanged                                                   |
+	// +-----------------------------------------------------------------+
+	// |  Override for SetupListener class                               |
+	// +-----------------------------------------------------------------+
+	public void setupChanged( SetupEvent event )
+	{
+	}
+
+	// +-----------------------------------------------------------------+
+	// |  run                                                            |
+	// +-----------------------------------------------------------------+
+	// |  Override for Runnable class                                    |
+	// +-----------------------------------------------------------------+
+	public void run()
+	{
+		m_runButton.setColored( STOP_ACTION );
+
+		try
+			{
+				super.setDescription( " " );
+				super.fireScriptApplied();
+
+				/*
+  				logger.infoStart("Clearing Status");
+				ArcDeviceJAPI.ClearStatus();
+				logger.infoEnd();					
+				*/
+
+				logger.infoStart("Setting Global Reset mode OFF");
+				ArcDeviceJAPI.Cmd(ArcDeviceJAPI.TIM_ID, 0x53524D, 0, ArcDeviceJAPI.DON);
+				logger.infoEnd();
+				
+				logger.infoStart("Stop Clocking");
+				ArcDeviceJAPI.Cmd( ArcDeviceJAPI.TIM_ID, ArcDeviceJAPI.STP, ArcDeviceJAPI.DON);
+				logger.infoEnd();
+				
+				for(int i=0; i<10; i++){
+					logger.infoStart("Clearing Array");
+					ArcDeviceJAPI.Cmd(ArcDeviceJAPI.TIM_ID,
+									  ArcDeviceJAPI.CLR, 
+									  ArcDeviceJAPI.DON);
+					logger.infoEnd();
+					
+					// Set the exposure time
+					logger.infoStart("Setting exposure time");
+					ArcDeviceJAPI.Cmd(ArcDeviceJAPI.TIM_ID, 
+									  ArcDeviceJAPI.SET, 0, 
+									  ArcDeviceJAPI.DON );
+					logger.infoEnd();
+					
+					logger.infoStart( "Starting 0 exposure");
+					ArcDeviceJAPI.Cmd(ArcDeviceJAPI.TIM_ID, 
+									  ArcDeviceJAPI.SEX, 
+									  ArcDeviceJAPI.DON );
+					logger.infoEnd();
+
+					Thread.sleep(2000);
+
+					for(int j=0; j<3; j++){
+						// Set the exposure time
+						logger.infoStart("Setting exposure time");
+						ArcDeviceJAPI.Cmd(ArcDeviceJAPI.TIM_ID, 
+										  ArcDeviceJAPI.SET, 15, 
+										  ArcDeviceJAPI.DON );
+						logger.infoEnd();
+						
+						logger.infoStart( "Starting 15 exposure");
+						ArcDeviceJAPI.Cmd(ArcDeviceJAPI.TIM_ID, 
+										  ArcDeviceJAPI.SEX, 
+										  ArcDeviceJAPI.DON );
+						logger.infoEnd();
+						
+						while(!ArcDeviceJAPI.IsReadout()){
+							Thread.sleep(15);
+						}
+					}
+					
+					logger.infoStart("Stop Clocking");
+					ArcDeviceJAPI.Cmd( ArcDeviceJAPI.TIM_ID, ArcDeviceJAPI.IDL, ArcDeviceJAPI.DON);
+					logger.infoEnd();
+					
+				}
+
+				//				logger.infoStart( "Setting exposure time" );
+				//ArcDeviceJAPI.Cmd( ArcDeviceJAPI.TIM_ID, ArcDeviceJAPI.SET, 10, ArcDeviceJAPI.DON );
+				//logger.infoEnd();
+
+
+				/*
+
+				System.out.print("Beffore!");
+
+				if(ArcDeviceJAPI.IsReadout())
+					System.out.println("Readout is active");
+				else
+					System.out.println("Readout is not active");
+
+				ArcDeviceJAPI.Cmd(ArcDeviceJAPI.TIM_ID, 0x525252, ArcDeviceJAPI.DON);
+
+				System.out.print("After!");
+
+				if(ArcDeviceJAPI.IsReadout())
+					System.out.println("Readout is active");
+				else
+					System.out.println("Readout is not active");
+				*/
+
+			}
+		catch ( Exception e )
+			{
+				logger.infoFail();
+
+				if ( e.getMessage() != null )
+					{
+						logger.error( e.getMessage() );
+					}
+			}
+		finally
+			{
+				m_runButton.setBlack( RUN_ACTION );
+			}
+	}
+
+	// +-----------------------------------------------------------------+
+	// |  createComponents                                               |
+	// +-----------------------------------------------------------------+
+	// |  Creates the primary window components.                         |
+	// +-----------------------------------------------------------------+
+	private JPanel createComponents()
+	{
+		JPanel panel = new JPanel();
+		panel.setLayout( gbl );
+
+		addComponent( panel, new JLabel( "test" ), 0, 0, 0, 0, GridBagConstraints.CENTER, 0, 0, 1, 1 );
+
+		return panel;
+	}
+}
+
+frame = ( CCScriptFrame )( new TemplateFrame() );
+frame.setVisible( true );

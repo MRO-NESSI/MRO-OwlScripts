@@ -1,0 +1,23 @@
+import javax.swing.border.TitledBorder;
+import arc.api.device.ArcDeviceJAPI;
+import arc.api.device.ArcReplyException;
+import owl.CCParams.CCScriptFrame;
+import owl.main.owltypes.OwlBoldButton;
+import owl.main.owltypes.OwlNumberField;
+import owl.gui.utils.OwlUtilities;
+import owl.main.setup.SetupEvent;
+import owl.main.setup.SetupListener;
+import owl.main.setup.SetupFrame;
+import owl.main.MainApp;
+
+
+public class TestRunner implements Runnable{
+	public Test Runner(){
+		System.out.println("Initialized");
+	}
+
+	public void run(){
+		System.out.println("Runner is running!");
+		
+	}
+}

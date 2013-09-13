@@ -1,0 +1,114 @@
+import javax.swing.border.TitledBorder;
+import arc.api.device.ArcDeviceJAPI;
+import arc.api.device.ArcReplyException;
+import owl.CCParams.CCScriptFrame;
+import owl.main.owltypes.OwlBoldButton;
+import owl.main.owltypes.OwlNumberField;
+import owl.gui.utils.OwlUtilities;
+import owl.main.setup.SetupEvent;
+import owl.main.setup.SetupListener;
+import owl.main.setup.SetupFrame;
+import owl.main.MainApp;
+
+import arc.api.fits.ArcFitsFileJAPI;
+import arc.api.device.ArcDeviceJAPI;
+import arc.api.device.ArcReplyException;
+import arc.api.deinterlace.ArcDeinterlaceJAPI;
+
+/*Note to self: Don't make this runnable. Have a different file for
+every action that may be preformed. What's more, make a signle file
+to be the library of H2RG commands. Make sure we can import in a sain
+way.*/
+
+public class TemplateFrame extends CCScriptFrame implements SetupListener
+{
+	private final String RUN_ACTION	 =	"RUN";
+	private final String STOP_ACTION =	"ABORT";
+
+	JToolBar			m_toolbar;
+    
+	public TemplateFrame()
+	{
+		super( "NESSI H2RG Controll" );
+
+		m_toolbar = new JToolBar();
+		m_toolbar.setFloatable( false );
+
+		super.appendToolbar( m_toolbar );
+
+		getContentPane().add( m_toolbar, BorderLayout.PAGE_START );
+		getContentPane().add( createComponents(), BorderLayout.CENTER );
+
+		SetupFrame.addSetupListener( this );
+
+		pack();
+		OwlUtilities.centerFrame( this );
+
+		loadPreferences();
+	}
+
+	public void destroy()
+	{
+		dispose();
+	}
+
+	public void actionPerformed( ActionEvent event )
+	{
+		if ( event.getActionCommand().equals( RUN_ACTION ) )
+		{
+			System.out.println("Run has been detected!");
+			System.out.println("Attempting to 'Open Shutter'.");
+
+			ArcDeviceJAPI.SetOpenShutter(true);
+		}
+
+		else
+		{
+			super.actionPerformed( event );
+		}
+	}
+
+	public void setupChanged( SetupEvent event )
+	{
+	}
+
+	private JButton createButton( String buttonText, String cmdFlag )
+	{
+		JButton jButton = new JButton( buttonText );
+
+		jButton.setPreferredSize( new Dimension( 80, 25 ) );
+		jButton.setActionCommand( cmdFlag );
+		jButton.addActionListener( this );
+
+		return jButton;
+	}
+
+	private JButton createButton( String buttonText, String cmdFlag, int width, int height)
+	{
+		JButton jButton = new JButton( buttonText );
+
+		jButton.setPreferredSize( new Dimension( width, height ) );
+		jButton.setActionCommand( cmdFlag );
+		jButton.addActionListener( this );
+
+		return jButton;
+	}
+
+	private JPanel createComponents()
+	{
+		JPanel panel = new JPanel();
+		panel.setLayout( gbl );
+
+		//		addComponent( panel, new JLabel( "test" ), 0, 0, 0, 0, 
+		//			  GridBagConstraints.CENTER, 0, 0, 1, 1 );
+
+		addComponent( panel, createButton("Run!", RUN_ACTION), 0, 0, 0, 0,
+					  GridBagConstraints.CENTER, 0, 0, 1, 1);
+
+		
+		return panel;
+	}
+}
+
+frame = ( CCScriptFrame )( new TemplateFrame() );
+frame.setVisible( true );

@@ -1,0 +1,69 @@
+mport javax.swing.border.TitledBorder;
+import arc.api.device.ArcDeviceJAPI;
+import arc.api.device.ArcReplyException;
+import owl.CCParams.CCScriptFrame;
+import owl.main.owltypes.OwlBoldButton;
+import owl.main.owltypes.OwlNumberField;
+import owl.gui.utils.OwlUtilities;
+import owl.main.setup.SetupEvent;
+import owl.main.setup.SetupListener;
+import owl.main.setup.SetupFrame;
+import owl.main.MainApp;
+
+import arc.api.fits.ArcFitsFileJAPI;
+import arc.api.device.ArcDeviceJAPI;
+import arc.api.device.ArcReplyException;
+import arc.api.deinterlace.ArcDeinterlaceJAPI;
+
+public class CDS {
+
+	public static void upTheRamp(int nFrames, int tTime, String baseFileName){
+
+		logger.infoStart("Setting Global Reset mode OFF");
+		ArcDeviceJAPI.Cmd(ArcDeviceJAPI.TIM_ID, 0x53524D, 0, ArcDeviceJAPI.DON);
+		logger.infoEnd();
+				
+		logger.infoStart("Stop Clocking");
+		ArcDeviceJAPI.Cmd( ArcDeviceJAPI.TIM_ID, ArcDeviceJAPI.STP, ArcDeviceJAPI.DON);
+		logger.infoEnd();
+				
+		logger.infoStart("Clearing Array");
+		ArcDeviceJAPI.Cmd(ArcDeviceJAPI.TIM_ID,
+						  ArcDeviceJAPI.CLR, 
+						  ArcDeviceJAPI.DON);
+		logger.infoEnd();
+		
+		logger.infoStart("Setting exposure time");
+		ArcDeviceJAPI.Cmd(ArcDeviceJAPI.TIM_ID, 
+						  ArcDeviceJAPI.SET, 0, 
+						  ArcDeviceJAPI.DON );
+		logger.infoEnd();
+		
+		logger.infoStart( "Starting 0 exposure");
+		ArcDeviceJAPI.Cmd(ArcDeviceJAPI.TIM_ID, 
+						  ArcDeviceJAPI.SEX, 
+						  ArcDeviceJAPI.DON );
+		logger.infoEnd();
+		
+		
+		logger.infoStart("Setting exposure time");
+		ArcDeviceJAPI.Cmd(ArcDeviceJAPI.TIM_ID, 
+						  ArcDeviceJAPI.SET, 15, 
+						  ArcDeviceJAPI.DON );
+		logger.infoEnd();
+			
+		logger.infoStart( "Starting 15 exposure");
+		ArcDeviceJAPI.Cmd(ArcDeviceJAPI.TIM_ID, 
+						  ArcDeviceJAPI.SEX, 
+						  ArcDeviceJAPI.DON );
+		logger.infoEnd();
+			
+		while(!ArcDeviceJAPI.IsReadout()){
+			Thread.sleep(15);
+		}
+			
+		logger.infoStart("Stop Clocking");
+		ArcDeviceJAPI.Cmd( ArcDeviceJAPI.TIM_ID, ArcDeviceJAPI.IDL, ArcDeviceJAPI.DON);
+		logger.infoEnd();
+	}
+}
