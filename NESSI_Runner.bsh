@@ -16,14 +16,18 @@ import arc.api.device.ArcReplyException;
 import arc.api.deinterlace.ArcDeinterlaceJAPI;
 
 /*Note to self: Don't make this runnable. Have a different file for
-every action that may be preformed. What's more, make a signle file
-to be the library of H2RG commands. Make sure we can import in a sain
+every action that may be performed. What's more, make a single file
+to be the library of H2RG commands. Make sure we can import in a sane
 way.*/
 
 public class TemplateFrame extends CCScriptFrame implements SetupListener
 {
 	private final String RUN_ACTION	 =	"RUN";
 	private final String STOP_ACTION =	"ABORT";
+
+	private final String RAMP_CTRL_ACTION 		= "RCTL";
+	private final String POINT_CTRL_ACTION		= "PCTL";
+	private final String TIME_CTRL_ACTION		= "TCTL";
 
 	JToolBar			m_toolbar;
     
@@ -101,6 +105,31 @@ public class TemplateFrame extends CCScriptFrame implements SetupListener
 
 		//		addComponent( panel, new JLabel( "test" ), 0, 0, 0, 0, 
 		//			  GridBagConstraints.CENTER, 0, 0, 1, 1 );
+
+		// Number of Ramps Control
+		rampControlField = OwlNumberField( "1", 10 )
+
+		JPanel rampControl = new JPanel( new FlowLayout( FlowLayout.LEFT ) );
+		rampControl.add( rampControlField );
+		rampControl.add( new JLabel( "Number of ramps" ) );
+
+		// Number of Points Control
+		pointControlField = OwlNumberField( "1", 10 )
+		
+		JPanel pointControl = new JPanel( new FlowLayout( FlowLayout.LEFT ) );
+		pointControl.add( pointControlField );
+		pointControl.add( new JLabel( "Number of points on ramp" ) );
+		
+		// Ramp Time Control
+		timeControlField = OwlNumberField( "1", 10)
+
+		JPanel timeControl = new JPanel( new FlowLayout( FlowLayout.LEFT ) );
+		timeControl.add( timeControlField );
+		timeControl.add( new JLabel( "Ramp time" ) );
+		
+		panel.add( rampControl );
+		panel.add( pointControl );
+		panel.add( timeControl );
 
 		addComponent( panel, createButton("Run!", RUN_ACTION), 0, 0, 0, 0,
 					  GridBagConstraints.CENTER, 0, 0, 1, 1);
