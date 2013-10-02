@@ -126,7 +126,7 @@ public class TemplateFrame extends CCScriptFrame implements SetupListener
 		panel.add( pointControl );
 		panel.add( timeControl );
 
-		addComponent( panel, createButton("Configure", RUN_ACTION), 0, 0, 0, 0,
+		addComponent( panel, createButton("Set", RUN_ACTION), 0, 0, 0, 0,
 					  GridBagConstraints.CENTER, 0, 0, 1, 1);
 		
 		return panel;
