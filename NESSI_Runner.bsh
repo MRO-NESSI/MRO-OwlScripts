@@ -23,11 +23,6 @@ way.*/
 public class TemplateFrame extends CCScriptFrame implements SetupListener
 {
 	private final String RUN_ACTION	 =	"RUN";
-	private final String STOP_ACTION =	"ABORT";
-
-	private final String RAMP_CTRL_ACTION 		= "RCTL";
-	private final String POINT_CTRL_ACTION		= "PCTL";
-	private final String TIME_CTRL_ACTION		= "TCTL";
 
 	JToolBar			m_toolbar;
     
