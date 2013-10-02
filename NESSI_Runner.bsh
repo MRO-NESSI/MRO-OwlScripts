@@ -1,5 +1,3 @@
-import javax.swing.border.TitledBorder;
-import arc.api.device.ArcDeviceJAPI;
 import arc.api.device.ArcReplyException;
 import owl.CCParams.CCScriptFrame;
 import owl.main.owltypes.OwlBoldButton;
@@ -55,10 +53,11 @@ public class TemplateFrame extends CCScriptFrame implements SetupListener
 	{
 		if ( event.getActionCommand().equals( RUN_ACTION ) )
 		{
-			System.out.println("Run has been detected!");
-			System.out.println("Attempting to 'Open Shutter'.");
-
-			ArcDeviceJAPI.SetOpenShutter(true);
+			// Read in the file with TestRunner
+			interp.source("TestRunner.bsh");
+			System.out.println("Starting configuration thread...");
+			Thread configThread = new Thread(new TestRunner());
+			configThread.start();
 		}
 
 		else

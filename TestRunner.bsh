@@ -12,12 +12,11 @@ import owl.main.MainApp;
 
 
 public class TestRunner implements Runnable{
-	public Test Runner(){
+	public TestRunner(){
 		System.out.println("Initialized");
 	}
 
 	public void run(){
-		System.out.println("Runner is running!");
-		
+		System.out.println("Runner is running!");	
 	}
 }
