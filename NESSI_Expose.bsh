@@ -11,9 +11,16 @@ import owl.main.setup.SetupFrame;
 import owl.main.MainApp;
 
 
-public class TestRunner implements Runnable{
-	public TestRunner(){
-		System.out.println("Initialized");
+public class ExposeRunner implements Runnable{
+	int numRamps;
+	int numPoints;
+	int exposeTime;	
+
+	public TestRunner(int numRamps, int numPoints, int exposeTime){
+		//this.numRamps = numRamps;
+		//this.numPoints = numPoints;
+		//this.exposeTime = exposeTime;
+		System.out.println("Expose thread initialized");
 	}
 
 	public void run(){

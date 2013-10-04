@@ -25,9 +25,9 @@ public class TemplateFrame extends CCScriptFrame implements SetupListener
 	JToolBar			m_toolbar;
 	
 	// Text fields that we'll need to access to call subthreads
-	OwlNumberField rampControlField;
-	OwlNumberField pointControlField;
-	OwlNumberField timeControlField;
+	OwlNumberField rampField;
+	OwlNumberField pointField;
+	OwlNumberField timeField;
     
 	public TemplateFrame()
 	{
@@ -58,11 +58,10 @@ public class TemplateFrame extends CCScriptFrame implements SetupListener
 	{
 		if ( event.getActionCommand().equals( RUN_ACTION ) )
 		{
-			// Read in the file with TestRunner
-			interp.source( "TestRunner.bsh" );
-			System.out.println("Starting configuration thread...");
-			Thread configThread = new Thread(new TestRunner());
-			configThread.start();
+			// Read in the file with the expose function
+			interp.source( "NESSI_Expose.bsh" );
+			//Thread exposeThread = new Thread( new ExposeRunner( rampField.getInt(), pointField.getInt(), timeField.getInt() ) );
+			//exposeThread.start();
 		}
 
 		else
@@ -109,7 +108,7 @@ public class TemplateFrame extends CCScriptFrame implements SetupListener
 		c.gridy = 0;
 
 		// Number of Ramps Control
-		rampControlField = new OwlNumberField( "0", 10 );
+		rampField = new OwlNumberField( "0", 10 );
 		c.gridx = 0;
 		panel.add( rampControlField, c );
 		c.gridx = 1;
@@ -117,7 +116,7 @@ public class TemplateFrame extends CCScriptFrame implements SetupListener
 		c.gridy++;
 
 		// Number of Points Control
-		pointControlField = new OwlNumberField( "1", 10 );
+		pointField = new OwlNumberField( "1", 10 );
 		c.gridx = 0;
 		panel.add( pointControlField, c );
 		c.gridx = 1;
@@ -125,7 +124,7 @@ public class TemplateFrame extends CCScriptFrame implements SetupListener
 		c.gridy++;
 	
 		// Ramp Time Control
-		timeControlField = new OwlNumberField( "1", 10);
+		timeField = new OwlNumberField( "1", 10);
 		c.gridx = 0;
 		panel.add( timeControlField, c );
 		c.gridx = 1;
