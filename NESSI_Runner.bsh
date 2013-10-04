@@ -54,10 +54,10 @@ public class TemplateFrame extends CCScriptFrame implements SetupListener
 		if ( event.getActionCommand().equals( RUN_ACTION ) )
 		{
 			// Read in the file with TestRunner
-			interp.source("TestRunner.bsh");
+			// interp.source("TestRunner.bsh");
 			System.out.println("Starting configuration thread...");
-			Thread configThread = new Thread(new TestRunner());
-			configThread.start();
+			// Thread configThread = new Thread(new TestRunner());
+			// configThread.start();
 		}
 
 		else
@@ -96,37 +96,40 @@ public class TemplateFrame extends CCScriptFrame implements SetupListener
 	{
 		JPanel panel = new JPanel();
 		panel.setLayout( new GridBagLayout() );
-		
-		//		addComponent( panel, new JLabel( "test" ), 0, 0, 0, 0, 
-		//			  GridBagConstraints.CENTER, 0, 0, 1, 1 );
+		GridBagConstraints c = new GridBagConstraints();
+		// Grid x = 1 will be fields, x = 2 will be descriptions
+		// Generic layout thaht will be shared
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.gridx = 0;
+		c.gridy = 0;
 
 		// Number of Ramps Control
 		OwlNumberField rampControlField = new OwlNumberField( "0", 10 );
+		c.gridx = 0;
+		panel.add( rampControlField, c );
+		c.gridx = 1;
+		panel.add( new JLabel( "Number of ramps" ), c );
+		c.gridy++;
 
-		JPanel rampControl = new JPanel( new FlowLayout( FlowLayout.LEFT ) );
-		rampControl.add( rampControlField );
-		rampControl.add( new JLabel( "Number of ramps" ) );
-		
 		// Number of Points Control
 		OwlNumberField pointControlField = new OwlNumberField( "1", 10 );
-		
-		JPanel pointControl = new JPanel( new FlowLayout( FlowLayout.LEFT ) );
-		pointControl.add( pointControlField );
-		pointControl.add( new JLabel( "Number of points on ramp" ) );
-		
+		c.gridx = 0;
+		panel.add( pointControlField, c );
+		c.gridx = 1;
+		panel.add( new JLabel( "Number of Points on Ramp" ), c );
+		c.gridy++;
+	
 		// Ramp Time Control
 		OwlNumberField timeControlField = new OwlNumberField( "1", 10);
+		c.gridx = 0;
+		panel.add( timeControlField, c );
+		c.gridx = 1;
+		panel.add( new JLabel( "Ramp Time" ), c );
+		c.gridy++;
 
-		JPanel timeControl = new JPanel( new FlowLayout( FlowLayout.LEFT ) );
-		timeControl.add( timeControlField );
-		timeControl.add( new JLabel( "Ramp time" ) );
-		
-		panel.add( rampControl );
-		panel.add( pointControl );
-		panel.add( timeControl );
-
-		addComponent( panel, createButton("Set", RUN_ACTION), 0, 0, 0, 0,
-					  GridBagConstraints.CENTER, 0, 0, 1, 1);
+		// Expose Button
+		c.gridx = 0;
+		panel.add( createButton( "Expose", RUN_ACTION ), c );
 		
 		return panel;
 	}
