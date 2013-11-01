@@ -1,0 +1,45 @@
+
+public void rampSample(int ramps,  int exptime, String baseFileName){
+	   for(int i = 0; i<ramps; i++){
+	   		   Expose(exptime, false, 0, baseFileName + i);
+	   }
+}
+
+rampSample(4, 1, "MainTest");
+
+/*
+( new Thread( new Runnable()
+{
+	public void run()
+	{
+		Expose( 0.5f, true, 0, "suckit.fits" );
+	}
+} ) ).start();
+
+try { Thread.sleep( 1000 ); } catch ( Exception e ) {}
+
+stop = true;
+
+try { Thread.sleep( 2000 ); } catch ( Exception e ) {}
+
+( new Thread( new Runnable()
+{
+	public void run()
+	{
+		Expose( 5.5f, true, 0, "nerd.fits" );
+
+		try
+		{
+			// Directly write keyword
+			ArcFitsFileJAPI.WriteKeyword( "MYKEY", "1122", "This is a fake key!", "nerd.fits" );
+
+			// Write all keywords within Owl's FITS header window
+			owl.main.MainApp.getMainFrame().getExposePanel().getFitsHeaderFrame().writeToFile( "nerd.fits");
+		}
+		catch ( Exception e )
+		{
+			logger.error( e );
+		}
+	}
+} ) ).start();
+*/
