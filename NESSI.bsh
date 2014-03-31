@@ -26,6 +26,7 @@ public class TemplateFrame extends CCScriptFrame implements SetupListener
 	// Text fields that we'll need to access to call subthreads
 	OwlNumberField rampField;
 	OwlNumberField pointField;
+	OwlNumberField delayField;
     
 	public TemplateFrame()
 	{
@@ -63,7 +64,7 @@ public class TemplateFrame extends CCScriptFrame implements SetupListener
 			exposePanel = frame.getExposePanel();
 			exposeTime = exposePanel.getExposeTime();
 
-			delayTime = (((exposeTime * 1000) + 419) * pointField.getInt()) + 500;
+			delayTime = (((exposeTime * 1000) + 419) * pointField.getInt()) + (delayField.getFloat() * 1000);
 			logger.info("Calculated ramp time: " + delayTime);
 
 			logger.info("Beginning ramp exposures");
@@ -149,6 +150,14 @@ public class TemplateFrame extends CCScriptFrame implements SetupListener
 		panel.add( pointField, c );
 		c.gridx = 1;
 		panel.add( new JLabel( "Exposure Count" ), c );
+		c.gridy++;
+
+		// Add'l Delay
+		delayField = new OwlNumberField( "0.5", 10);
+		c.gridx = 0;
+		panel.add( delayField, c);
+		c.gridx = 1;
+		panel.add( new JLabel ("Interramp Delay"), c );
 		c.gridy++;
 	
 		// Expose Button
