@@ -55,10 +55,10 @@ public class TemplateFrame extends CCScriptFrame implements SetupListener
 
 	public void actionPerformed( ActionEvent event )
 	{
-		delayTime = (((timeField.getFloat() * 1000) + 419) * pointField.getInt()) + 500;
-		logger.info("Calculated ramp time: " + delayTime);
 		if ( event.getActionCommand().equals( RUN_ACTION ) )
 		{
+			delayTime = (((timeField.getFloat() * 1000) + 419) * pointField.getInt()) + 500;
+			logger.info("Calculated ramp time: " + delayTime);
 			for(i = 0; i < rampField.getInt(); i++) {
 				source = new Object();
 				frame = MainApp.getMainFrame();
