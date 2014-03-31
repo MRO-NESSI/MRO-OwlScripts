@@ -64,7 +64,7 @@ public class TemplateFrame extends CCScriptFrame implements SetupListener
 			exposePanel = frame.getExposePanel();
 			exposeTime = exposePanel.getExposeTime();
 
-			delayTime = (((exposeTime * 1000) + 419) * pointField.getInt()) + (delayField.getFloat() * 1000);
+			delayTime = (((exposeTime * 1000) + 425) * pointField.getInt()) + (delayField.getFloat() * 1000);
 			logger.info("Calculated ramp time: " + delayTime);
 
 			logger.info("Beginning ramp exposures");
