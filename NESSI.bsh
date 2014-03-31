@@ -68,12 +68,17 @@ public class TemplateFrame extends CCScriptFrame implements SetupListener
 
 			logger.info("Beginning ramp exposures");
 
+			bsh.shared.abort = false;
+
 			ExposerRunnable (ramps, delayTime, frame, ourAction)  {
 				run() {
 					for(i = 0; i < this.ramps; i++) {
 						frame.actionPerformed(this.ourAction);
 						Thread.sleep((int)this.delayTime);
 						logger.info("Completed ramp " + (i+1));
+						if(bsh.shared.abort) {
+							break;
+						}
 					}
 				}
 				return this;
@@ -81,6 +86,10 @@ public class TemplateFrame extends CCScriptFrame implements SetupListener
 			Runnable r = ExposerRunnable(rampField.getInt(), delayTime, frame, ourAction);
 			
 			new Thread(r).start();
+		}
+		
+		else if ( event.getActionCommand().equals("ABORT") ) {
+			bsh.shared.abort = true;
 		}
 
 		else
@@ -145,6 +154,10 @@ public class TemplateFrame extends CCScriptFrame implements SetupListener
 		// Expose Button
 		c.gridx = 0;
 		panel.add( createButton( "Expose", RUN_ACTION ), c );
+
+		c.gridx = 0;
+		c.gridy++;
+		panel.add( createButton( "Abort", "ABORT" ), c );
 		
 		return panel;
 	}
