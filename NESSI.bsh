@@ -7,16 +7,15 @@ import owl.main.setup.SetupEvent;
 import owl.main.setup.SetupListener;
 import owl.main.setup.SetupFrame;
 import owl.main.MainApp;
+import owl.main.MainFrame;
+
+import java.awt.event.ActionEvent;
+import javax.swing.JButton;
 
 import arc.api.fits.ArcFitsFileJAPI;
 import arc.api.device.ArcDeviceJAPI;
 import arc.api.device.ArcReplyException;
 import arc.api.deinterlace.ArcDeinterlaceJAPI;
-
-/*Note to self: Don't make this runnable. Have a different file for
-every action that may be performed. What's more, make a single file
-to be the library of H2RG commands. Make sure we can import in a sane
-way.*/
 
 public class TemplateFrame extends CCScriptFrame implements SetupListener
 {
@@ -56,12 +55,17 @@ public class TemplateFrame extends CCScriptFrame implements SetupListener
 
 	public void actionPerformed( ActionEvent event )
 	{
+		delayTime = (((timeField.getFloat() * 1000) + 419) * pointField.getInt()) + 500;
+		logger.info("Calculated ramp time: " + delayTime);
 		if ( event.getActionCommand().equals( RUN_ACTION ) )
 		{
-			// Read in the file with the expose function
-			interp.source( "NESSI_Expose.bsh" );
-			//Thread exposeThread = new Thread( new ExposeRunner( rampField.getInt(), pointField.getInt(), timeField.getInt() ) );
-			//exposeThread.start();
+			for(i = 0; i < rampField.getInt(); i++) {
+				source = new Object();
+				frame = MainApp.getMainFrame();
+				ourAction = new ActionEvent(source, 0, "EXPOSE");
+				frame.actionPerformed(ourAction);
+				Thread.sleep((int)delayTime);
+			}
 		}
 
 		else
@@ -108,9 +112,9 @@ public class TemplateFrame extends CCScriptFrame implements SetupListener
 		c.gridy = 0;
 
 		// Number of Ramps Control
-		rampField = new OwlNumberField( "0", 10 );
+		rampField = new OwlNumberField( "1", 10 );
 		c.gridx = 0;
-		panel.add( rampControlField, c );
+		panel.add( rampField, c );
 		c.gridx = 1;
 		panel.add( new JLabel( "Number of ramps" ), c );
 		c.gridy++;
@@ -118,17 +122,17 @@ public class TemplateFrame extends CCScriptFrame implements SetupListener
 		// Number of Points Control
 		pointField = new OwlNumberField( "1", 10 );
 		c.gridx = 0;
-		panel.add( pointControlField, c );
+		panel.add( pointField, c );
 		c.gridx = 1;
-		panel.add( new JLabel( "Number of Points on Ramp" ), c );
+		panel.add( new JLabel( "Exposure Count" ), c );
 		c.gridy++;
 	
 		// Ramp Time Control
 		timeField = new OwlNumberField( "1", 10);
 		c.gridx = 0;
-		panel.add( timeControlField, c );
+		panel.add( timeField, c );
 		c.gridx = 1;
-		panel.add( new JLabel( "Ramp Time" ), c );
+		panel.add( new JLabel( "Exposure Time" ), c );
 		c.gridy++;
 
 		// Expose Button
