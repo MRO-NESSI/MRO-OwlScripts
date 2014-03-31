@@ -26,7 +26,6 @@ public class TemplateFrame extends CCScriptFrame implements SetupListener
 	// Text fields that we'll need to access to call subthreads
 	OwlNumberField rampField;
 	OwlNumberField pointField;
-	OwlNumberField timeField;
     
 	public TemplateFrame()
 	{
@@ -57,15 +56,31 @@ public class TemplateFrame extends CCScriptFrame implements SetupListener
 	{
 		if ( event.getActionCommand().equals( RUN_ACTION ) )
 		{
-			delayTime = (((timeField.getFloat() * 1000) + 419) * pointField.getInt()) + 500;
+			source = new Object();
+			frame = MainApp.getMainFrame();
+			ourAction = new ActionEvent(source, 0, "EXPOSE");
+
+			exposePanel = frame.getExposePanel();
+			exposeTime = exposePanel.getExposeTime();
+
+			delayTime = (((exposeTime * 1000) + 419) * pointField.getInt()) + 500;
 			logger.info("Calculated ramp time: " + delayTime);
-			for(i = 0; i < rampField.getInt(); i++) {
-				source = new Object();
-				frame = MainApp.getMainFrame();
-				ourAction = new ActionEvent(source, 0, "EXPOSE");
-				frame.actionPerformed(ourAction);
-				Thread.sleep((int)delayTime);
+
+			logger.info("Beginning ramp exposures");
+
+			ExposerRunnable (ramps, delayTime, frame, ourAction)  {
+				run() {
+					for(i = 0; i < this.ramps; i++) {
+						frame.actionPerformed(this.ourAction);
+						Thread.sleep((int)this.delayTime);
+						logger.info("Completed ramp " + (i+1));
+					}
+				}
+				return this;
 			}
+			Runnable r = ExposerRunnable(rampField.getInt(), delayTime, frame, ourAction);
+			
+			new Thread(r).start();
 		}
 
 		else
@@ -127,14 +142,6 @@ public class TemplateFrame extends CCScriptFrame implements SetupListener
 		panel.add( new JLabel( "Exposure Count" ), c );
 		c.gridy++;
 	
-		// Ramp Time Control
-		timeField = new OwlNumberField( "1", 10);
-		c.gridx = 0;
-		panel.add( timeField, c );
-		c.gridx = 1;
-		panel.add( new JLabel( "Exposure Time" ), c );
-		c.gridy++;
-
 		// Expose Button
 		c.gridx = 0;
 		panel.add( createButton( "Expose", RUN_ACTION ), c );
