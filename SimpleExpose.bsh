@@ -1,0 +1,12 @@
+import owl.main.MainApp;
+import owl.main.MainFrame;
+import java.awt.event.ActionEvent;
+import javax.swing.JButton;
+
+source = new Object();
+
+frame = MainApp.getMainFrame();
+
+ourAction = new ActionEvent(source, 0, "EXPOSE");
+
+frame.actionPerformed(ourAction);
