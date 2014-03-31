@@ -17,8 +17,8 @@ Quick Guide to Science
    'Continuous readout' and in the window that appears check the box and,
    in the tet box on the right, enter the number of samples in each ramp.
    Note that ramp time will equal Exp Time * Continuous Readout count,
-   plus the readout time of each frame (about 420ms).
-1. Click 'Run' and then 'Close'.
+   plus the readout time of each frame (about 420ms). Click Run and then
+   Close.
 1. Now, in the Script section, click the folder icon to the right of the
    text box and open NESSI.bsh. Click the run icon (farthest right).
 1. In the NESSI control window, enter the number of ramps you would like
