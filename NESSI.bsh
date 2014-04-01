@@ -94,10 +94,18 @@ public class TemplateFrame extends CCScriptFrame implements SetupListener
 					// Ramp execution
 					for(i = 0; i < this.ramps; i++) {
 						// Update telemetry
-         			// this will block until master control sends the whole packet!
+						// this will block until master control sends the whole packet!
 						Runtime.getRuntime().exec("kill -SIGPOLL " + pid);
 	 					jsonString = fifoScanner.next();
 	 					fitsObject = gson.fromJson(jsonString, DataObject.class); // this is of type DataObject
+					
+						// Keywords that we will be setting
+						keywords = new List<String>(Arrays.asList("OBSERVER", "INST", "TELESCOP", "FILENAME", "IMGTYPE", "RA", "DEC", "AIRMASS", "TELALT", "TELAZ", "TELFOCUS", "PA", "JD", "GDATE", "WINDVEL", "WINDGUST", "WINDDIR", "REI12", "REI34", "MASK", "FILTER1", "FILTER2", "GRISM", "EXP", "CAMTEMP", "CTYPE1", "CTYPE2", "CRPIX1", "CRPIX2", "CDELT1", "CDELT2", "CRVAL1", "CRVAL2", "CROTA2"));
+
+						// Now that we've enumerated them, we set them
+						for(keyword: keywords) {
+							fitsHeaderFrame.addField(keyword, fitsObject.getString(keyword))
+						}
 
 						// start exposure and wait for it to finish
 						frame.actionPerformed(this.ourAction);
