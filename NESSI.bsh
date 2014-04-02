@@ -84,7 +84,7 @@ public class TemplateFrame extends CCScriptFrame implements SetupListener
 					for(i = 0; i < this.ramps; i++) {
 
 						logger.startInfo("Retrieving current telescope telemetry");
-						teleSocket = new Socket("127.0.0.1", 89898);
+						teleSocket = new Socket("127.0.0.1", 8989);
 						teleScanner = new Scanner(teleSocket.getInputStream());
 						while(teleScanner.hasNextLine()) {
 							fitsLine = teleScanner.hasNextLine();
