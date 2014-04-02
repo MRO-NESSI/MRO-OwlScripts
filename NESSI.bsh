@@ -12,16 +12,10 @@ import owl.main.MainFrame;
 import java.awt.event.ActionEvent;
 import javax.swing.JButton;
 
-import arc.api.fits.ArcFitsFileJAPI;
 import arc.api.device.ArcDeviceJAPI;
-import arc.api.device.ArcReplyException;
-import arc.api.deinterlace.ArcDeinterlaceJAPI;
 
-import java.io.File;
-import java.io.FileInputStream;
+import java.net.Socket;
 import java.io.Scanner;
-import java.io.IOException;
-import com.google.gson.Gson;
 
 public class TemplateFrame extends CCScriptFrame implements SetupListener
 {
