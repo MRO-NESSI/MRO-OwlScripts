@@ -4,7 +4,8 @@
 #  h2rgDeinterlace.py
 #  
 #  Copyright 2013 Luke Schmidt, <lschmidt@mro.nmt.edu>
-#  
+#  Copyright 2014 Jesse Crawford, <jcrawford@cs.nmt.edu>
+#
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
 #  the Free Software Foundation; either version 2 of the License, or
@@ -45,35 +46,43 @@ def readfile(fname):
 	return hdu
 
 def deinterlace(hdu):
-#	try:
-	frames = hdu[0].header['NAXIS3']
-#	except KeyError:
-	#	frames = 1
+	try:
+		frames = hdu[0].header['NAXIS3']
+	except KeyError:
+		frames = 1
 	#shape = (header['NAXIS2'], header['NAXIS1'])
 	#data1 = np.zeros((frames, shape[0], shape[1]))
-	for f in range(frames):
-		hdu[0].data[f] = hdu[0].data[f][:][:,NEWORDER]
+
+	if frames > 1:
+		for f in range(frames):
+			hdu[0].data[f] = hdu[0].data[f][:][:,NEWORDER]
+	else:
+		hdu[0].data = hdu[0].data[:][:,NEWORDER]
 		
 	return hdu
 		
 def savefile(hdu):
 	hdu.flush()
 
+def ensureDirectory(path):
+	d = os.path.dirname(path)
+	if not os.path.exists(d):
+		os.makedirs(d)
+
+def moveFile(f):
+	dateString = datetime.now().strftime("%Y-%m-%d")
+	ensureDirectory("/home/nessi/Images/{}/".format(dateString))
+	newName = "/home/nessi/Images/{}/{}".format(dateString, os.path.basename(os.path.normpath(f)))
+	os.rename(f, newName)
+
+def process(f):
+	hdu = readfile(f)
+	hdu = deinterlace(hdu)
+	savefile(hdu)
+	moveFile(f)
+	
+
 if __name__== '__main__':
 	files = glob.glob("/home/nessi/NewImages/*")
 	for f in files:
-		try:
-			hdu = readfile(f)
-			hdu = deinterlace(hdu)
-			savefile(hdu)
-			
-			dateString = datetime.now().strftime("%Y%m%d")
-			
-			d = os.path.dirname("/home/nessi/Images/{}/".format(dateString))
-			if not os.path.exists(d):
-				os.makedirs(d)
-
-			newName = "/home/nessi/Images/{}/{}".format(dateString, os.path.basename(os.path.normpath(f)))
-			os.rename(f, newName)
-		except KeyError as e:
-			print "Failed deinterlacing {}: single frame file".format(f) 
+		process(f)
