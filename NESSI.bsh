@@ -33,7 +33,6 @@ public class TemplateFrame extends CCScriptFrame implements SetupListener
 	OwlNumberField rampField;
 	OwlNumberField pointField;
 	OwlNumberField delayField;
-	OwlNumberField pidField;
     
 	public TemplateFrame()
 	{
@@ -66,12 +65,7 @@ public class TemplateFrame extends CCScriptFrame implements SetupListener
 		{
 			// Disable image sensor reset
 			ArcDeviceJAPI.Cmd( ArcDeviceJAPI.TIM_ID, 0x53524D, 0, ArcDeviceJAPI.DON );
-
-			// Open FIFO for reading
-			fifoFile = new File("/tmp/fitsFifo");                // **EOT**
-			fifoScanner = new Scanner(fifoFile).useDelimiter("\\[*][*]EOT[*][*]\\")
-			pid = pidField.getInt();
-			gson = new Gson(); // just have this ready
+			logger.info("Disabled reset of imager")
 
 			// Create/retrieve objects needed to click Expose button
 			source = new Object();
@@ -94,18 +88,8 @@ public class TemplateFrame extends CCScriptFrame implements SetupListener
 					// Ramp execution
 					for(i = 0; i < this.ramps; i++) {
 						// Update telemetry
-						// this will block until master control sends the whole packet!
-						Runtime.getRuntime().exec("kill -SIGPOLL " + pid);
-	 					jsonString = fifoScanner.next();
-	 					fitsObject = gson.fromJson(jsonString, DataObject.class); // this is of type DataObject
-					
-						// Keywords that we will be setting
-						keywords = new List<String>(Arrays.asList("OBSERVER", "INST", "TELESCOP", "FILENAME", "IMGTYPE", "RA", "DEC", "AIRMASS", "TELALT", "TELAZ", "TELFOCUS", "PA", "JD", "GDATE", "WINDVEL", "WINDGUST", "WINDDIR", "REI12", "REI34", "MASK", "FILTER1", "FILTER2", "GRISM", "EXP", "CAMTEMP", "CTYPE1", "CTYPE2", "CRPIX1", "CRPIX2", "CDELT1", "CDELT2", "CRVAL1", "CRVAL2", "CROTA2"));
 
-						// Now that we've enumerated them, we set them
-						for(keyword: keywords) {
-							fitsHeaderFrame.addField(keyword, fitsObject.getString(keyword))
-						}
+						//	fitsHeaderFrame.addField(keyword, fitsObject.getString(keyword))
 
 						// start exposure and wait for it to finish
 						frame.actionPerformed(this.ourAction);
@@ -196,14 +180,6 @@ public class TemplateFrame extends CCScriptFrame implements SetupListener
 		panel.add( new JLabel ("Interramp Delay"), c );
 		c.gridy++;
 
-		// PID
-		pidField = new OwlNumberField( "0000", 32768);
-		c.gridx = 0;
-		panel.add( pidField, c);
-		c.gridx = 1;
-		panel.add( new JLabel ("NESSI Control PID"), c);
-		c.gridy++;
-	
 		// Expose Button
 		c.gridx = 0;
 		panel.add( createButton( "Expose", RUN_ACTION ), c );
