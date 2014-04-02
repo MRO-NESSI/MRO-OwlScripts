@@ -82,8 +82,16 @@ public class TemplateFrame extends CCScriptFrame implements SetupListener
 					// Ramp execution
 					for(i = 0; i < this.ramps; i++) {
 						// Update telemetry
-
-						//	fitsHeaderFrame.addField(keyword, fitsObject.getString(keyword))
+						teleSocket = new Socket("127.0.0.1", 89898)
+						teleScanner = new Scanner(teleSocket.getInputStream());
+						while(teleScanner.hasNextLine()) {
+							fitsLine = teleScanner.hasNextLine();
+							if(fitsLine != "") {
+								fitsProp = fitsLine.split("\t");
+								fitsHeaderFrame.addField(fitsProp[0], fitsProp[1]);
+							}
+						}
+						teleSocket.close();
 
 						// start exposure and wait for it to finish
 						frame.actionPerformed(this.ourAction);
