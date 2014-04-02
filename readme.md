@@ -19,7 +19,7 @@ call manually, e.g.:
 You might also set a cron job that does it automatically if you're
 patient:
 
-`*/2 * * * * /home/nessi/MRO-OwlScripts/autodeinterlace.py`
+`*/2 * * * * nice -10 /home/nessi/MRO-OwlScripts/autodeinterlace.py`
 
 NESSI.bsh
 ---------
