@@ -76,6 +76,7 @@ def moveFile(f):
 	os.rename(f, newName)
 
 def process(f):
+	print "Deinterlacing {}...".format(f)
 	hdu = readfile(f)
 	hdu = deinterlace(hdu)
 	savefile(hdu)
