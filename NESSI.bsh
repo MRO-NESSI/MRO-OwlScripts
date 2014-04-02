@@ -57,17 +57,17 @@ public class TemplateFrame extends CCScriptFrame implements SetupListener
 	{
 		if ( event.getActionCommand().equals( RUN_ACTION ) )
 		{
-			// Disable image sensor reset
+			logger.startInfo("Disabling imager reset");
 			ArcDeviceJAPI.Cmd( ArcDeviceJAPI.TIM_ID, 0x53524D, 0, ArcDeviceJAPI.DON );
-			logger.info("Disabled reset of imager")
+			logger.endInfo();
 
-			// Create/retrieve objects needed to click Expose button
+			logger.startInfo("Preparing to begin exposures");
 			source = new Object();
 			frame = MainApp.getMainFrame();
 			ourAction = new ActionEvent(source, 0, "EXPOSE");
 			exposePanel = frame.getExposePanel();
+			logger.endInfo();
 
-			// Estimate ramp execution time
 			exposeTime = exposePanel.getExposeTime();
 			delayTime = (((exposeTime * 1000) + 425) * pointField.getInt()) + (delayField.getFloat() * 1000);
 			logger.info("Calculated ramp time: " + delayTime);
@@ -76,13 +76,15 @@ public class TemplateFrame extends CCScriptFrame implements SetupListener
 			bsh.shared.abort = false;
 
 			// Here we are creating a Runnable implementation in the beanshell way
+			logger.info("Starting expose thread");
 			ExposerRunnable (ramps, delayTime, frame, ourAction)  {
 				run() {
 		
 					// Ramp execution
 					for(i = 0; i < this.ramps; i++) {
-						// Update telemetry
-						teleSocket = new Socket("127.0.0.1", 89898)
+
+						logger.startInfo("Retrieving current telescope telemetry");
+						teleSocket = new Socket("127.0.0.1", 89898);
 						teleScanner = new Scanner(teleSocket.getInputStream());
 						while(teleScanner.hasNextLine()) {
 							fitsLine = teleScanner.hasNextLine();
@@ -92,17 +94,21 @@ public class TemplateFrame extends CCScriptFrame implements SetupListener
 							}
 						}
 						teleSocket.close();
+						logger.endInfo();
 
 						// start exposure and wait for it to finish
 						frame.actionPerformed(this.ourAction);
 						Thread.sleep((int)this.delayTime);
-						logger.info("Completed ramp " + (i+1));
+						logger.info(">>> Completed ramp " + (i+1));
 						
 						// Check abort flag
 						if(bsh.shared.abort) {
+							logger.warn(">>> Aborted after " + (i+1) + " ramps.");
 							break;
 						}
+
 					}
+					logger.info(">>> End of exposures");
 
 				}
 				return this;
@@ -112,6 +118,8 @@ public class TemplateFrame extends CCScriptFrame implements SetupListener
 		}
 		
 		else if ( event.getActionCommand().equals("ABORT") ) {
+			logger.warn(">>> Aborting at end of next ramp.");
+			logger.info("To terminate current ramp, use ABORT in main window");
 			bsh.shared.abort = true;
 		}
 
@@ -186,9 +194,8 @@ public class TemplateFrame extends CCScriptFrame implements SetupListener
 		c.gridx = 0;
 		panel.add( createButton( "Expose", RUN_ACTION ), c );
 
-		c.gridx = 0;
-		c.gridy++;
-		panel.add( createButton( "Abort", "ABORT" ), c );
+		c.gridx = 1;
+		panel.add( createButton( "ABORT", "ABORT" ), c );
 		
 		return panel;
 	}
