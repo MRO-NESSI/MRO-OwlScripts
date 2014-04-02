@@ -16,6 +16,16 @@ import arc.api.device.ArcDeviceJAPI;
 
 import java.net.Socket;
 import java.io.Scanner;
+import java.io.File;
+import java.net.URL;
+
+classManager = interp.getClassManager();
+classManager.addClassPath(new URL("file:///usr/local/lib/java/jfits.jar"));
+
+import org.eso.fits.FitsFile;
+import org.eso.fits.FistHDUnit;
+import org.eso.fits.FitsHeader;
+import org.eso.fits.FitsKeyword;
 
 public class TemplateFrame extends CCScriptFrame implements SetupListener
 {
@@ -87,11 +97,12 @@ public class TemplateFrame extends CCScriptFrame implements SetupListener
 						logger.infoStart("Retrieving current telescope telemetry");
 						teleSocket = new Socket("127.0.0.1", 8989);
 						teleScanner = new Scanner(teleSocket.getInputStream());
+						fits = new HashMap();
 						while(teleScanner.hasNextLine()) {
 							fitsLine = teleScanner.nextLine();
 							if(fitsLine != "") {
 								fitsProp = fitsLine.split("\t");
-								fitsHeaderFrame.addField(fitsProp[0], fitsProp[1]);
+								fits.put(fitsProp[0], fitsProp[1]);
 							}
 						}
 						teleSocket.close();
@@ -101,6 +112,36 @@ public class TemplateFrame extends CCScriptFrame implements SetupListener
 						frame.actionPerformed(this.ourAction);
 						Thread.sleep((int)this.delayTime);
 						logger.info(">>> Completed ramp " + (i+1));
+
+						logger.infoStart("Updating FITS headers");
+
+						// get to headers
+						outputFileName = exposePanel.getFilename();
+						fitsFileHandle = new File(outputFileName);
+						fitsFile = new FitsFile(fitsFileHandle);
+						fitsUnit = fitsFile.getHDUnit(0);
+						fitsHeader = fitsUnit.getHeader();
+						
+						// modify existing headers
+						headerList = fitsHeader.getKeywords();
+						while(headerList.hasNext()) {
+							header = headerList.next();
+							if(fits.containsKey(header.getName())) {
+								header.setValue(fits.get(header.getName()));
+								fits.remove(header.getName());
+							}
+						}
+
+						// add new headers
+						iter = fits.entrySet().iterator();
+						while(iter.hasNext()) {
+							fitsValue = iter.next();
+							newKw = new FitsKeyword(fitsValue.getKey(), fitsValue.getValue());
+							fitsHeader.addKeyword(newKw);
+						}
+						fitsFileHandle.delete();
+						fitsFile.writeFile(outputFileName);
+						logger.infoEnd();
 						
 						// Check abort flag
 						if(bsh.shared.abort) {
