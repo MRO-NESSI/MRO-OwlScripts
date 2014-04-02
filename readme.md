@@ -1,10 +1,19 @@
 OwlScripts
 ==========
 
-Owl scripts for running the NESSI instrument.
+scripts for running the NESSI instrument.
 
-Quick Guide to Science
-----------------------
+NESSI.bsh
+---------
+
+NESSI.bsh is a BeanShell script for Owl. It has three responsibilities:
+
+* Manually disabling imager reset between continuous readout exposures
+* Retrieving telemetry from the NESSI controller and configuring Owl's
+  FITS header output appropriately
+* Starting each ramp automatically
+
+# Quick Guide to Science
 
 1. Launch owl (`owl&`)
 1. If the 'Supported Configuration' box is empty, click the Setup button
