@@ -3,6 +3,24 @@ OwlScripts
 
 scripts for running the NESSI instrument.
 
+autodeinterlace.py
+------------------
+
+autodeinterlace.py is a Python script that reads all FITS files in
+`/home/nessi/NewImages/`, deinterlaces them, and drops them in
+`/home/nessi/Images/yyyy-mm-dd/`. Yes, these paths are hardcoded.
+This should be fixed later.
+
+It is recommended that you set an alias to it to make it easier to
+call manually, e.g.:
+
+`alias newimages="/home/nessi/MRO-OwlScripts/autodeinterlace.py"`
+
+You might also set a cron job that does it automatically if you're
+patient:
+
+`*/2 * * * * /home/nessi/MRO-OwlScripts/autodeinterlace.py`
+
 NESSI.bsh
 ---------
 
@@ -10,10 +28,10 @@ NESSI.bsh is a BeanShell script for Owl. It has three responsibilities:
 
 * Manually disabling imager reset between continuous readout exposures
 * Retrieving telemetry from the NESSI controller and configuring Owl's
-  FITS header output appropriately
+  FITS header output appropriately (currently in dev branch...)
 * Starting each ramp automatically
 
-# Quick Guide to Science
+### Quick Guide to Science
 
 1. Launch owl (`owl&`)
 1. If the 'Supported Configuration' box is empty, click the Setup button
@@ -42,6 +60,8 @@ NESSI.bsh is a BeanShell script for Owl. It has three responsibilities:
 1. Click 'Expose'. The NESSI control script will automatically start
    the correct number of ramps in Owl, you can watch its progress in
    the log output window.
+1. Note that the output files will **not** be deinterlaced. Take a look at
+   autodeinterlace.py for help with that problem.
 
 Should you lose interest in an exposure process, you can click Abort in
 the NESSI script window. This will cause exposures to end after the end
