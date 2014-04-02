@@ -57,16 +57,17 @@ public class TemplateFrame extends CCScriptFrame implements SetupListener
 	{
 		if ( event.getActionCommand().equals( RUN_ACTION ) )
 		{
-			logger.startInfo("Disabling imager reset");
+			logger.info("Event");
+			logger.infoStart("Disabling imager reset");
 			ArcDeviceJAPI.Cmd( ArcDeviceJAPI.TIM_ID, 0x53524D, 0, ArcDeviceJAPI.DON );
-			logger.endInfo();
+			logger.infoEnd();
 
-			logger.startInfo("Preparing to begin exposures");
+			logger.infoStart("Preparing to begin exposures");
 			source = new Object();
 			frame = MainApp.getMainFrame();
 			ourAction = new ActionEvent(source, 0, "EXPOSE");
 			exposePanel = frame.getExposePanel();
-			logger.endInfo();
+			logger.infoEnd();
 
 			exposeTime = exposePanel.getExposeTime();
 			delayTime = (((exposeTime * 1000) + 425) * pointField.getInt()) + (delayField.getFloat() * 1000);
@@ -83,18 +84,18 @@ public class TemplateFrame extends CCScriptFrame implements SetupListener
 					// Ramp execution
 					for(i = 0; i < this.ramps; i++) {
 
-						logger.startInfo("Retrieving current telescope telemetry");
+						logger.infoStart("Retrieving current telescope telemetry");
 						teleSocket = new Socket("127.0.0.1", 8989);
 						teleScanner = new Scanner(teleSocket.getInputStream());
 						while(teleScanner.hasNextLine()) {
-							fitsLine = teleScanner.hasNextLine();
+							fitsLine = teleScanner.nextLine();
 							if(fitsLine != "") {
 								fitsProp = fitsLine.split("\t");
 								fitsHeaderFrame.addField(fitsProp[0], fitsProp[1]);
 							}
 						}
 						teleSocket.close();
-						logger.endInfo();
+						logger.infoEnd();
 
 						// start exposure and wait for it to finish
 						frame.actionPerformed(this.ourAction);
