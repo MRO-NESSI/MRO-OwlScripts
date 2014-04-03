@@ -11,6 +11,7 @@ import owl.main.MainFrame;
 
 import java.awt.event.ActionEvent;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 
 import arc.api.device.ArcDeviceJAPI;
 
@@ -37,7 +38,8 @@ public class TemplateFrame extends CCScriptFrame implements SetupListener
 	OwlNumberField rampField;
 	OwlNumberField pointField;
 	OwlNumberField delayField;
-    
+	JCheckBox fitsEnable;
+
 	public TemplateFrame()
 	{
 		super( "NESSI H2RG Control" );
@@ -85,6 +87,8 @@ public class TemplateFrame extends CCScriptFrame implements SetupListener
 
 			// Set "abort requested" flag - bsh.shared is, well, shared.
 			bsh.shared.abort = false;
+			// and convenience name for telemetry enable
+			fitsEnabled = fitsEnable.isSelected();
 
 			// Here we are creating a Runnable implementation in the beanshell way
 			logger.info("Starting expose thread");
@@ -94,55 +98,59 @@ public class TemplateFrame extends CCScriptFrame implements SetupListener
 					// Ramp execution
 					for(i = 0; i < this.ramps; i++) {
 
-						logger.infoStart("Retrieving current telescope telemetry");
-						teleSocket = new Socket("127.0.0.1", 8989);
-						teleScanner = new Scanner(teleSocket.getInputStream());
-						fits = new HashMap();
-						while(teleScanner.hasNextLine()) {
-							fitsLine = teleScanner.nextLine();
-							if(fitsLine != "") {
-								fitsProp = fitsLine.split("\t");
-								fits.put(fitsProp[0], fitsProp[1]);
+						if(fitsEnabled) {
+							logger.infoStart("Retrieving current telescope telemetry");
+							teleSocket = new Socket("127.0.0.1", 8989);
+							teleScanner = new Scanner(teleSocket.getInputStream());
+							fits = new HashMap();
+							while(teleScanner.hasNextLine()) {
+								fitsLine = teleScanner.nextLine();
+								if(fitsLine != "") {
+									fitsProp = fitsLine.split("\t");
+									fits.put(fitsProp[0], fitsProp[1]);
+								}
 							}
+							teleSocket.close();
+							logger.infoEnd();
 						}
-						teleSocket.close();
-						logger.infoEnd();
 
 						// start exposure and wait for it to finish
 						frame.actionPerformed(this.ourAction);
 						Thread.sleep((int)this.delayTime);
 						logger.info(">>> Completed ramp " + (i+1));
 
-						logger.infoStart("Updating FITS headers");
-
-						// get to headers
-						outputFileName = exposePanel.getFilename();
-						fitsFileHandle = new File(outputFileName);
-						fitsFile = new FitsFile(fitsFileHandle);
-						fitsUnit = fitsFile.getHDUnit(0);
-						fitsHeader = fitsUnit.getHeader();
-						
-						// modify existing headers
-						headerList = fitsHeader.getKeywords();
-						while(headerList.hasNext()) {
-							header = headerList.next();
-							if(fits.containsKey(header.getName())) {
-								header.setValue(fits.get(header.getName()));
-								fits.remove(header.getName());
+						if(fitsEnabled) {
+							logger.infoStart("Updating FITS headers");
+							
+							// get to headers
+							outputFileName = exposePanel.getFilename();
+							fitsFileHandle = new File(outputFileName);
+							fitsFile = new FitsFile(fitsFileHandle);
+							fitsUnit = fitsFile.getHDUnit(0);
+							fitsHeader = fitsUnit.getHeader();
+							
+							// modify existing headers
+							headerList = fitsHeader.getKeywords();
+							while(headerList.hasNext()) {
+								header = headerList.next();
+								if(fits.containsKey(header.getName())) {
+									header.setValue(fits.get(header.getName()));
+									fits.remove(header.getName());
+								}
 							}
+							
+							// add new headers
+							iter = fits.entrySet().iterator();
+							while(iter.hasNext()) {
+								fitsValue = iter.next();
+								newKw = new FitsKeyword(fitsValue.getKey(), fitsValue.getValue());
+								fitsHeader.addKeyword(newKw);
+							}
+							fitsFileHandle.delete();
+							fitsFile.writeFile(outputFileName);
+							logger.infoEnd();
 						}
 
-						// add new headers
-						iter = fits.entrySet().iterator();
-						while(iter.hasNext()) {
-							fitsValue = iter.next();
-							newKw = new FitsKeyword(fitsValue.getKey(), fitsValue.getValue());
-							fitsHeader.addKeyword(newKw);
-						}
-						fitsFileHandle.delete();
-						fitsFile.writeFile(outputFileName);
-						logger.infoEnd();
-						
 						// Check abort flag
 						if(bsh.shared.abort) {
 							logger.warn(">>> Aborted after " + (i+1) + " ramps.");
@@ -232,10 +240,17 @@ public class TemplateFrame extends CCScriptFrame implements SetupListener
 		panel.add( new JLabel ("Interramp Delay"), c );
 		c.gridy++;
 
-		// Expose Button
+		// FITS Retrieval
+		fitsEnable = new JCheckbox();
+		c.gridx = 0;
+		panel.add( delayField, c);
+		c.gridx = 1;
+		panel.add( new JLabel ("Auto telemetry");
+		c.gridy++;
+
+		// Buttons
 		c.gridx = 0;
 		panel.add( createButton( "Expose", RUN_ACTION ), c );
-
 		c.gridx = 1;
 		panel.add( createButton( "ABORT", "ABORT" ), c );
 		
