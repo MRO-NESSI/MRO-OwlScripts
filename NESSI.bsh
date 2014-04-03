@@ -241,11 +241,11 @@ public class TemplateFrame extends CCScriptFrame implements SetupListener
 		c.gridy++;
 
 		// FITS Retrieval
-		fitsEnable = new JCheckbox();
+		fitsEnable = new JCheckBox();
 		c.gridx = 0;
-		panel.add( delayField, c);
+		panel.add( fitsEnable, c);
 		c.gridx = 1;
-		panel.add( new JLabel("Auto telemetry"));
+		panel.add( new JLabel("Auto telemetry"), c);
 		c.gridy++;
 
 		// Buttons
