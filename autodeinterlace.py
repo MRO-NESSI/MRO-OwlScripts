@@ -76,15 +76,16 @@ def moveFile(f):
 	os.rename(f, newName)
 
 def subtract(first, second):
-	pass
+	for x in range(2048):
+		for y in range(2048):
+			second[0].data[y][x] = second[0].data[y][x] - first[0].data[y][x]
 
 def process(f, firstImage):
 	print "Deinterlacing {}...".format(f)
 	hdu = readfile(f)
 	hdu = deinterlace(hdu)
-	if(subtract != None) {
+	if(subtract != None):
 		subtract(firstImage, hdu)
-	}
 	savefile(hdu)
 	moveFile(f)
 	
