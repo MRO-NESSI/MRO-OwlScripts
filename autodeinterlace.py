@@ -78,18 +78,24 @@ def moveFile(f):
 	os.rename(f, newName)
 	return newName
 
-def subtract(first, second):
+# Danger will robinson!
+# This will clobber the existing second in memory, it should be
+# written out to disk first!
+def subtract(first, second, original):
 	for x in range(2048):
 		for y in range(2048):
 			second[0].data[y][x] = second[0].data[y][x] - first[0].data[y][x]
+	dateString = datetime.now().strftime("%Y-%m-%d")
+	oname = os.path.basename(os.path.normpath(f))
+	second.writeto("/home/nessi/Images/{}/subt-{}".format(dateString, oname)) 
 
 def process(f, firstImage):
 	print "Deinterlacing {}...".format(f)
 	hdu = readfile(f)
 	hdu = deinterlace(hdu)
-	if(subtract != None):
-		subtract(firstImage, hdu)
 	savefile(hdu)
+	if(subtract != None):
+		subtract(firstImage, hdu, f)
 	return moveFile(f)
 	
 
