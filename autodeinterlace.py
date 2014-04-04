@@ -78,10 +78,17 @@ def moveFile(f):
 	os.rename(f, newName)
 	return newName
 
-def process(f):
+def subtract(first, second):
+	for x in range(2048):
+		for y in range(2048):
+			second[0].data[y][x] = second[0].data[y][x] - first[0].data[y][x]
+
+def process(f, firstImage):
 	print "Deinterlacing {}...".format(f)
 	hdu = readfile(f)
 	hdu = deinterlace(hdu)
+	if(subtract != None):
+		subtract(firstImage, hdu)
 	savefile(hdu)
 	return moveFile(f)
 	
@@ -89,7 +96,13 @@ def process(f):
 if __name__== '__main__':
 	parser = ArgumentParser()
 	parser.add_argument('--openwith', nargs=1)
+	parser.add_argument('-s', '--subtract', action='store', help="Subtract given frame from each new frame.")
 	args = parser.parse_args()
+
+	if(args.subtract != None):
+		firstImage = readfile(f)
+	else:
+		firstImage = None
 
 	files = glob.glob("/home/nessi/NewImages/*")
 	for f in files:
