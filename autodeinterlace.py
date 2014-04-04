@@ -91,7 +91,7 @@ def subtract(first, second, original):
 		for f in range(frames):
 			for x in range(2048):
 				for y in range(2048):
-					second[0].data[y][x] = second[0].data[f][y][x] - first[0].data[y][x]
+					second[0].datar[f][y][x] = second[0].data[f][y][x] - first[0].data[y][x]
 	else:
 		for x in range(2048):
 			for y in range(2048):
