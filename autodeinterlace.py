@@ -82,9 +82,20 @@ def moveFile(f):
 # This will clobber the existing second in memory, it should be
 # written out to disk first!
 def subtract(first, second, original):
-	for x in range(2048):
-		for y in range(2048):
-			second[0].data[y][x] = second[0].data[y][x] - first[0].data[y][x]
+	try:
+		frames = second[0].header['NAXIS3']
+	except KeyError:
+		frames = 1
+	
+	if frames > 1:
+		for f in range(frames):
+			for x in range(2048):
+				for y in range(2048):
+					second[0].data[y][x] = second[0].data[f][y][x] - first[0].data[y][x]
+	else:
+		for x in range(2048):
+			for y in range(2048):
+				second[0].data[y][x] = second[0].data[y][x] - first[0].data[y][x]
 	dateString = datetime.now().strftime("%Y-%m-%d")
 	oname = os.path.basename(os.path.normpath(f))
 	second.writeto("/home/nessi/Images/{}/subt-{}".format(dateString, oname)) 
@@ -94,7 +105,7 @@ def process(f, firstImage):
 	hdu = readfile(f)
 	hdu = deinterlace(hdu)
 	savefile(hdu)
-	if(subtract != None):
+	if(firstImage):
 		subtract(firstImage, hdu, f)
 	return moveFile(f)
 	
