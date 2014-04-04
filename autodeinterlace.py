@@ -117,12 +117,12 @@ if __name__== '__main__':
 	args = parser.parse_args()
 
 	if(args.subtract != None):
-		firstImage = readfile(f)
+		firstImage = readfile(args.subtract)
 	else:
 		firstImage = None
 
 	files = glob.glob("/home/nessi/NewImages/*")
 	for f in files:
-		new_f = process(f)
+		new_f = process(f, firstImage)
 		if args.openwith and (not os.fork()):
 			call([args.openwith[0], new_f])
