@@ -29,12 +29,14 @@
 #    Also set an alias, e.g.:
 #      alias newimages="/home/nessi/autodeinterlace.py"
 
-import pyfits as pf
-import numpy as np
+from argpars import ArgumentParser
 import glob
-import argparse
 from datetime import datetime
 import os
+from subprocess import call
+
+import pyfits as pf
+import numpy as np
 
 NEWORDER = []
 
@@ -74,16 +76,22 @@ def moveFile(f):
 	ensureDirectory("/home/nessi/Images/{}/".format(dateString))
 	newName = "/home/nessi/Images/{}/{}".format(dateString, os.path.basename(os.path.normpath(f)))
 	os.rename(f, newName)
+	return newName
 
 def process(f):
 	print "Deinterlacing {}...".format(f)
 	hdu = readfile(f)
 	hdu = deinterlace(hdu)
 	savefile(hdu)
-	moveFile(f)
+	return moveFile(f)
 	
 
 if __name__== '__main__':
+	parser = ArgumentParser()
+	parser.add_argument('--openwith', nargs=1)
+
 	files = glob.glob("/home/nessi/NewImages/*")
 	for f in files:
-		process(f)
+		new_f = process(f)
+		if parser.openwith and (not os.fork()):
+			call([parser.openwith, new_f])
