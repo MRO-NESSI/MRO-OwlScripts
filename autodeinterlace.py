@@ -75,15 +75,30 @@ def moveFile(f):
 	newName = "/home/nessi/Images/{}/{}".format(dateString, os.path.basename(os.path.normpath(f)))
 	os.rename(f, newName)
 
-def process(f):
+def subtract(first, second):
+	pass
+
+def process(f, firstImage):
 	print "Deinterlacing {}...".format(f)
 	hdu = readfile(f)
 	hdu = deinterlace(hdu)
+	if(subtract != None) {
+		subtract(firstImage, hdu)
+	}
 	savefile(hdu)
 	moveFile(f)
 	
 
 if __name__== '__main__':
+	parser = argparse.ArgumentParser(description='Deinterlace and lightly analyse FITS images from NESSI.')
+	parser.add_argument('-s', '--subtract', action='store', help="Subtract given frame from each new frame.")
+	args = parser.parse_args();
+
+	if(args.subtract != None):
+		firstImage = readfile(f)
+	else:
+		firstImage = None
+
 	files = glob.glob("/home/nessi/NewImages/*")
 	for f in files:
-		process(f)
+		process(f, firstImage)
