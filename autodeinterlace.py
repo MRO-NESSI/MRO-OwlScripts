@@ -29,7 +29,7 @@
 #    Also set an alias, e.g.:
 #      alias newimages="/home/nessi/autodeinterlace.py"
 
-from argpars import ArgumentParser
+from argparse import ArgumentParser
 import glob
 from datetime import datetime
 import os
@@ -89,9 +89,10 @@ def process(f):
 if __name__== '__main__':
 	parser = ArgumentParser()
 	parser.add_argument('--openwith', nargs=1)
+	args = parser.parse_args()
 
 	files = glob.glob("/home/nessi/NewImages/*")
 	for f in files:
 		new_f = process(f)
-		if parser.openwith and (not os.fork()):
-			call([parser.openwith, new_f])
+		if args.openwith and (not os.fork()):
+			call([args.openwith[0], new_f])
