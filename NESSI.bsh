@@ -176,6 +176,10 @@ public class TemplateFrame extends CCScriptFrame implements SetupListener
 					}
 					logger.info(">>> End of exposures");
 
+					logger.infoStart("Enabling imager reset");
+					ArcDeviceJAPI.Cmd( ArcDeviceJAPI.TIM_ID, 0x53524D, 1, ArcDeviceJAPI.DON );
+					logger.infoEnd();
+
 				}
 				return this;
 			}
