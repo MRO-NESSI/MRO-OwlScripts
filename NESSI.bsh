@@ -93,6 +93,20 @@ public class TemplateFrame extends CCScriptFrame implements SetupListener
 			// Here we are creating a Runnable implementation in the beanshell way
 			logger.info("Starting expose thread");
 			ExposerRunnable (ramps, delayTime, frame, ourAction)  {
+				
+				// Guesses the correct type for a value (string or number)
+				// Returns double if number, string if not
+				typeMagic(input) {
+					try {
+						d = Double.parseDouble(input);
+					}
+					catch (NumberFormatException nfe)
+					{
+						return input;
+					}
+					return d;
+				}
+
 				run() {
 		
 					// Ramp execution
@@ -103,11 +117,13 @@ public class TemplateFrame extends CCScriptFrame implements SetupListener
 							teleSocket = new Socket("127.0.0.1", 8989);
 							teleScanner = new Scanner(teleSocket.getInputStream());
 							fits = new HashMap();
+							fitsCmt = new HashMap();
 							while(teleScanner.hasNextLine()) {
 								fitsLine = teleScanner.nextLine();
 								if(fitsLine != "") {
 									fitsProp = fitsLine.split("\t");
 									fits.put(fitsProp[0], fitsProp[1]);
+									fitsCmt.put(fitsProp[0], fitsProp[2]);
 								}
 							}
 							teleSocket.close();
@@ -134,7 +150,7 @@ public class TemplateFrame extends CCScriptFrame implements SetupListener
 							while(headerList.hasNext()) {
 								header = headerList.next();
 								if(fits.containsKey(header.getName())) {
-									header.setValue(fits.get(header.getName()));
+									header.setValue(typeMagic(fits.get(header.getName())));
 									fits.remove(header.getName());
 								}
 							}
@@ -143,11 +159,12 @@ public class TemplateFrame extends CCScriptFrame implements SetupListener
 							iter = fits.entrySet().iterator();
 							while(iter.hasNext()) {
 								fitsValue = iter.next();
-								newKw = new FitsKeyword(fitsValue.getKey(), fitsValue.getValue());
+								newKw = new FitsKeyword(fitsValue.getKey(), typeMagic(fitsValue.getValue()), fitsCmt.get(fitsValue.getKey));
 								fitsHeader.addKeyword(newKw);
 							}
 							fitsFileHandle.delete();
 							fitsFile.writeFile(outputFileName);
+							fitsFile.finalize();
 							logger.infoEnd();
 						}
 
