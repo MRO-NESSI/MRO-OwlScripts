@@ -71,17 +71,17 @@ def ensureDirectory(path):
 	if not os.path.exists(d):
 		os.makedirs(d)
 
-def moveFile(f):
+def moveFile(f, args):
 	dateString = datetime.now().strftime("%Y-%m-%d")
-	ensureDirectory("/home/nessi/Images/{}/".format(dateString))
-	newName = "/home/nessi/Images/{}/{}".format(dateString, os.path.basename(os.path.normpath(f)))
+	ensureDirectory(os.path.join(args.output, "{}/".format(dateString)))
+	newName = os.path.join(args.output, "{}/{}".format(dateString, os.path.basename(os.path.normpath(f))))
 	os.rename(f, newName)
 	return newName
 
 # Danger will robinson!
 # This will clobber the existing second in memory, it should be
 # written out to disk first!
-def subtract(posData, posFile, negFile):
+def subtract(posData, posFile, negFile, args):
 	negData = readfile(negFile)
 
 	try:
@@ -101,7 +101,7 @@ def subtract(posData, posFile, negFile):
 	dateString = datetime.now().strftime("%Y-%m-%d")
 	pname, pexten = os.path.splitext(os.path.basename(os.path.normpath(posFile)))
 	nname, nexten = os.path.splitext(os.path.basename(os.path.normpath(negFile)))
-	second.writeto("/home/nessi/Images/{}/{}-{}.fit".format(dateString, pname, nname)) 
+	second.writeto(os.path.join(args.output, "{}/{}-{}.fit".format(dateString, pname, nname)))
 
 def process(f, args):
 	print "Deinterlacing {}...".format(f)
@@ -109,17 +109,18 @@ def process(f, args):
 	hdu = deinterlace(hdu)
 	savefile(hdu)
 	if(args.subtract):
-		subtract(firstImage, f, args.subtract)
-	return moveFile(f)
-	
+		subtract(firstImage, f, args.subtract, args)
+	return moveFile(f, args)
 
 if __name__== '__main__':
 	parser = ArgumentParser()
 	parser.add_argument('--openwith', nargs=1)
 	parser.add_argument('-s', '--subtract', action='store', help="Subtract given frame from each new frame.")
+	parser.add_argument('-i', '--input', action='store', help="Input folder.", default="/home/nessi/NewImages/")
+	parser.add_argument('-o', '--output', action='store', help="Output folder.", default="/home/nessi/Images/")
 	args = parser.parse_args()
 
-	files = glob.glob("/home/nessi/NewImages/*")
+	files = os.listdir(args.input)
 	for f in files:
 		new_f = process(f, args)
 		if args.openwith and (not os.fork()):
