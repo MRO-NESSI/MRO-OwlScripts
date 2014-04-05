@@ -81,9 +81,11 @@ def moveFile(f):
 # Danger will robinson!
 # This will clobber the existing second in memory, it should be
 # written out to disk first!
-def subtract(first, second, original):
+def subtract(posData, posFile, negFile):
+	negData = readfile(negFile)
+
 	try:
-		frames = second[0].header['NAXIS3']
+		frames = posData[0].header['NAXIS3']
 	except KeyError:
 		frames = 1
 	
@@ -91,22 +93,23 @@ def subtract(first, second, original):
 		for f in range(frames):
 			for x in range(2048):
 				for y in range(2048):
-					second[0].datar[f][y][x] = second[0].data[f][y][x] - first[0].data[y][x]
+					posData[0].data[f][y][x] = posData[0].data[f][y][x] - negData[0].data[y][x]
 	else:
 		for x in range(2048):
 			for y in range(2048):
-				second[0].data[y][x] = second[0].data[y][x] - first[0].data[y][x]
+				posData[0].data[y][x] = posData[0].data[y][x] - negData[0].data[y][x]
 	dateString = datetime.now().strftime("%Y-%m-%d")
-	oname = os.path.basename(os.path.normpath(f))
-	second.writeto("/home/nessi/Images/{}/subt-{}".format(dateString, oname)) 
+	pname, pexten = os.path.splitext(os.path.basename(os.path.normpath(posFile)))
+	nname, nexten = os.path.splitext(os.path.basename(os.path.normpath(negFile)))
+	second.writeto("/home/nessi/Images/{}/{}-{}.fit".format(dateString, pname, nname)) 
 
-def process(f, firstImage):
+def process(f, args):
 	print "Deinterlacing {}...".format(f)
 	hdu = readfile(f)
 	hdu = deinterlace(hdu)
 	savefile(hdu)
-	if(firstImage):
-		subtract(firstImage, hdu, f)
+	if(args.subtract):
+		subtract(firstImage, f, args.subtract)
 	return moveFile(f)
 	
 
@@ -116,13 +119,8 @@ if __name__== '__main__':
 	parser.add_argument('-s', '--subtract', action='store', help="Subtract given frame from each new frame.")
 	args = parser.parse_args()
 
-	if(args.subtract != None):
-		firstImage = readfile(args.subtract)
-	else:
-		firstImage = None
-
 	files = glob.glob("/home/nessi/NewImages/*")
 	for f in files:
-		new_f = process(f, firstImage)
+		new_f = process(f, args)
 		if args.openwith and (not os.fork()):
 			call([args.openwith[0], new_f])
