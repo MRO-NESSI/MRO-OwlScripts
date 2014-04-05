@@ -69,7 +69,6 @@ public class TemplateFrame extends CCScriptFrame implements SetupListener
 	{
 		if ( event.getActionCommand().equals( RUN_ACTION ) )
 		{
-			logger.info("Event");
 			logger.infoStart("Disabling imager reset");
 			ArcDeviceJAPI.Cmd( ArcDeviceJAPI.TIM_ID, 0x53524D, 0, ArcDeviceJAPI.DON );
 			logger.infoEnd();
@@ -91,7 +90,7 @@ public class TemplateFrame extends CCScriptFrame implements SetupListener
 			fitsEnabled = fitsEnable.isSelected();
 
 			// Here we are creating a Runnable implementation in the beanshell way
-			logger.info("Starting expose thread");
+			logger.info(">>> Starting expose thread");
 			ExposerRunnable (ramps, delayTime, frame, ourAction)  {
 				
 				// Guesses the correct type for a value (string or number)
