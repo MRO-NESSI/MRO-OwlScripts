@@ -101,7 +101,7 @@ def subtract(posData, posFile, negFile, args):
 	dateString = datetime.now().strftime("%Y-%m-%d")
 	pname, pexten = os.path.splitext(os.path.basename(os.path.normpath(posFile)))
 	nname, nexten = os.path.splitext(os.path.basename(os.path.normpath(negFile)))
-	second.writeto(os.path.join(args.output, "{}/{}-{}.fit".format(dateString, pname, nname)))
+	posData.writeto(os.path.join(args.output, "{}/{}-{}.fit".format(dateString, pname, nname)))
 
 def process(f, args):
 	print "Deinterlacing {}...".format(f)
@@ -109,12 +109,12 @@ def process(f, args):
 	hdu = deinterlace(hdu)
 	savefile(hdu)
 	if(args.subtract):
-		subtract(firstImage, f, args.subtract, args)
+		subtract(hdu, f, args.subtract, args)
 	return moveFile(f, args)
 
 if __name__== '__main__':
 	parser = ArgumentParser()
-	parser.add_argument('--openwith', nargs=1)
+	parser.add_argument('--openwith', nargs=1, help="Open file in selected viewer")
 	parser.add_argument('-s', '--subtract', action='store', help="Subtract given frame from each new frame.")
 	parser.add_argument('-i', '--input', action='store', help="Input folder.", default="/home/nessi/NewImages/")
 	parser.add_argument('-o', '--output', action='store', help="Output folder.", default="/home/nessi/Images/")
@@ -122,6 +122,7 @@ if __name__== '__main__':
 
 	files = os.listdir(args.input)
 	for f in files:
-		new_f = process(f, args)
+		fpath = os.path.join(args.input, f)
+		new_f = process(fpath, args)
 		if args.openwith and (not os.fork()):
 			call([args.openwith[0], new_f])
