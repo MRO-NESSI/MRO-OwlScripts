@@ -8,8 +8,10 @@ autodeinterlace.py
 
 autodeinterlace.py is a Python script that reads all FITS files in
 `/home/nessi/NewImages/`, deinterlaces them, and drops them in
-`/home/nessi/Images/yyyy-mm-dd/`. Yes, these paths are hardcoded.
-This should be fixed later.
+`/home/nessi/Images/yyyy-mm-dd/` by default. An arbitrary output directory
+can be specified with the `--output` flag. By convention, if readings from
+one observation run are taken across multiple days, they should be stored
+in the directory dated with the earliest date.
 
 It is recommended that you set an alias to it to make it easier to
 call manually, e.g.:
