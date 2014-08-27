@@ -38,6 +38,9 @@ from subprocess import call
 import pyfits as pf
 import numpy as np
 
+DEFAULT_INPUT = os.path.expanduser("~/NewImages/")
+DEFAULT_OUTPUT = os.path.expanduser("~/Images/%Y-%m-%d/")
+
 NEWORDER = []
 
 for i in range(32):
@@ -72,9 +75,9 @@ def ensureDirectory(path):
 		os.makedirs(d)
 
 def moveFile(f, args):
-	dateString = datetime.now().strftime("%Y-%m-%d")
-	ensureDirectory(os.path.join(args.output, "{}/".format(dateString)))
-	newName = os.path.join(args.output, "{}/{}".format(dateString, os.path.basename(os.path.normpath(f))))
+    outDir = datetime.now().strftime(args.output)
+	ensureDirectory(outDir)
+	newName = os.path.join(outDir, "{}".format(os.path.basename(os.path.normpath(f))))
 	os.rename(f, newName)
 	return newName
 
@@ -98,10 +101,10 @@ def subtract(posData, posFile, negFile, args):
 		for x in range(2048):
 			for y in range(2048):
 				posData[0].data[y][x] = posData[0].data[y][x] - negData[0].data[y][x]
-	dateString = datetime.now().strftime("%Y-%m-%d")
+    outDir = datetime.now().strftime(DEFAULT_OUTPUT)
 	pname, pexten = os.path.splitext(os.path.basename(os.path.normpath(posFile)))
 	nname, nexten = os.path.splitext(os.path.basename(os.path.normpath(negFile)))
-	posData.writeto(os.path.join(args.output, "{}/{}-{}.fit".format(dateString, pname, nname)))
+	posData.writeto(os.path.join(outDir, "{}-{}.fit".format(pname, nname)))
 
 def process(f, args):
 	print "Deinterlacing {}...".format(f)
@@ -116,8 +119,8 @@ if __name__== '__main__':
 	parser = ArgumentParser()
 	parser.add_argument('--openwith', nargs=1, help="Open file in selected viewer")
 	parser.add_argument('-s', '--subtract', action='store', help="Subtract given frame from each new frame.")
-	parser.add_argument('-i', '--input', action='store', help="Input folder.", default=os.path.expanduser("~/NewImages/"))
-	parser.add_argument('-o', '--output', action='store', help="Output folder.", default=os.path.expanduser("~/Images/"))
+	parser.add_argument('-i', '--input', action='store', help="Input folder.", default=DEFAULT_INPUT)
+	parser.add_argument('-o', '--output', action='store', help="Output folder.", default=DEFAULT_OUTPUT)
 	args = parser.parse_args()
 
 	files = os.listdir(args.input)
