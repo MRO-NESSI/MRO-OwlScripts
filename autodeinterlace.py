@@ -116,8 +116,8 @@ if __name__== '__main__':
 	parser = ArgumentParser()
 	parser.add_argument('--openwith', nargs=1, help="Open file in selected viewer")
 	parser.add_argument('-s', '--subtract', action='store', help="Subtract given frame from each new frame.")
-	parser.add_argument('-i', '--input', action='store', help="Input folder.", default="/home/nessi/NewImages/")
-	parser.add_argument('-o', '--output', action='store', help="Output folder.", default="/home/nessi/Images/")
+	parser.add_argument('-i', '--input', action='store', help="Input folder.", default=os.path.expanduser("~/NewImages/"))
+	parser.add_argument('-o', '--output', action='store', help="Output folder.", default=os.path.expanduser("~/Images/"))
 	args = parser.parse_args()
 
 	files = os.listdir(args.input)
